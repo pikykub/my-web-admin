@@ -3,51 +3,196 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>สมัครสมาชิก - Store Front</title>
+    <title>สมัครสมาชิก - PeachWeb</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Kanit', sans-serif; background-color: #f8f9fa; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .card { background: white; padding: 40px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 100%; max-width: 400px; text-align: center; }
-        h2 { color: #333; margin-bottom: 20px; }
-        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; background-color: #ff1493; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px; margin-top: 10px; }
-        .link { margin-top: 15px; font-size: 14px; color: #666; }
-        a { color: #ff1493; text-decoration: none; font-weight: bold; }
+        :root { --main-red: #ea334a; --bg-color: #f5f6f8; --text-dark: #333; }
+        body { font-family: 'Kanit', sans-serif; background-color: var(--bg-color); margin: 0; color: var(--text-dark); }
+        
+        /* Navbar แบบในรูป */
+        .navbar { background-color: var(--main-red); padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; color: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .logo { font-size: 24px; font-weight: bold; font-style: italic; }
+        .nav-links { display: flex; gap: 20px; align-items: center; font-size: 14px; }
+        .nav-links a { color: white; text-decoration: none; }
+        .btn-auth-dark { background: #333; color: white; padding: 8px 15px; border-radius: 20px; text-decoration: none; display: flex; align-items: center; gap: 5px; }
+
+        /* กล่องสมัครสมาชิก */
+        .container { max-width: 600px; margin: 50px auto; background: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: center; border: 1px solid #eee; }
+        .container h2 { margin-top: 0; margin-bottom: 5px; font-size: 24px; }
+        .brand-subtitle { color: var(--main-red); font-weight: bold; font-size: 14px; margin-bottom: 0; text-align: left; }
+        .hashtag { color: #888; font-size: 14px; text-align: left; margin-top: 5px; margin-bottom: 20px; }
+        
+        .login-link { display: block; text-align: center; color: #666; text-decoration: none; font-size: 14px; margin-bottom: 30px; }
+        .login-link:hover { color: var(--main-red); }
+
+        /* ฟอร์มกรอกข้อมูล */
+        .form-group { text-align: left; margin-bottom: 20px; }
+        .form-group label { display: block; font-size: 13px; font-weight: bold; margin-bottom: 8px; color: #555; }
+        .form-group input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-family: 'Kanit'; font-size: 14px; outline: none; transition: 0.3s; }
+        .form-group input:focus { border-color: var(--main-red); }
+
+        /* กล่อง Mock reCAPTCHA ให้เหมือนของจริง */
+        .recaptcha-box { border: 1px solid #d3d3d3; background: #f9f9f9; border-radius: 3px; padding: 10px 15px; display: inline-flex; align-items: center; gap: 15px; margin-bottom: 25px; width: 280px; justify-content: space-between; cursor: pointer; }
+        .recaptcha-checkbox { width: 25px; height: 25px; border: 2px solid #c1c1c1; background: white; border-radius: 2px; display: flex; align-items: center; justify-content: center; }
+        .recaptcha-checkbox.checked::after { content: '✔'; color: #009688; font-size: 20px; font-weight: bold; }
+        .recaptcha-text { font-size: 14px; color: #555; }
+        .recaptcha-logo { width: 40px; opacity: 0.8; }
+
+        /* ปุ่มสมัคร */
+        .btn-submit { width: 100%; padding: 15px; background-color: var(--main-red); color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .btn-submit:hover { background-color: #d12b41; }
+        
+        /* Footer */
+        .footer { text-align: center; padding: 30px; color: #888; font-size: 12px; margin-top: 50px; border-top: 1px solid #eee; }
+
+        /* Toast แจ้งเตือน */
+        #toast { visibility: hidden; min-width: 250px; background-color: #333; color: white; text-align: center; border-radius: 8px; padding: 15px; position: fixed; z-index: 1000; left: 50%; top: 20px; transform: translateX(-50%); opacity: 0; transition: opacity 0.3s; font-family: 'Kanit'; }
+        #toast.show { visibility: visible; opacity: 1; }
     </style>
 </head>
 <body>
-<div class="card">
-    <h2>สมัครสมาชิก 👤</h2>
-    <input type="email" id="email" placeholder="อีเมล / Email">
-    <input type="password" id="password" placeholder="รหัสผ่าน / Password">
-    <button id="btnRegister">สมัครสมาชิก</button>
-    <div class="link">มีบัญชีอยู่แล้ว? <a href="login.html">เข้าสู่ระบบ</a></div>
-</div>
 
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+    <div id="toast">ข้อความ</div>
 
-    const firebaseConfig = {
-        apiKey: "AIzaSyBORnXLQdZnETh9AMFMUx50FlLylKCVc2w",
-        authDomain: "web-rental-system-d8894.firebaseapp.com",
-        projectId: "web-rental-system-d8894",
-        storageBucket: "web-rental-system-d8894.firebasestorage.app",
-        messagingSenderId: "389385259939",
-        appId: "1:389385259939:web:5a8de35f4a06b906e66816"
-    };
+    <nav class="navbar">
+        <div class="logo">PeachWeb</div>
+        <div class="nav-links">
+            <a href="index.html">หน้าหลัก</a>
+            <a href="#">เติมเงิน</a>
+            <a href="#">ร้านค้า</a>
+            <a href="#">เกี่ยวกับเรา ▾</a>
+            <a href="login.html" class="btn-auth-dark">เข้าสู่ระบบ</a>
+            <a href="register.html">สมัครสมาชิก</a>
+        </div>
+    </nav>
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
+    <div class="container">
+        <h2>สมัครสมาชิก</h2>
+        <div class="brand-subtitle">PeachWeb</div>
+        <div class="hashtag">- #</div>
+        
+        <a href="login.html" class="login-link">➔ เข้าใช้งานหากมีบัญชีแล้ว</a>
 
-    document.getElementById('btnRegister').addEventListener('click', async () => {
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-        try {
-            await createUserWithEmailAndPassword(auth, email, password);
-            alert("สมัครสำเร็จ! ม่อนพาไปหน้าล็อกอินนะ");
-            window.location.href = "login.html";
-        } catch (e) { alert("พลาดตรงนี้: " + e.message); }
-    });
-</script>
+        <div class="form-group">
+            <label>ชื่อผู้ใช้ / Username</label>
+            <input type="text" id="username" placeholder="ชื่อผู้ใช้">
+        </div>
+
+        <div class="form-group">
+            <label>รหัสผ่าน / Password</label>
+            <input type="password" id="password" placeholder="รหัสผ่าน">
+        </div>
+
+        <div class="form-group">
+            <label>Confirm password</label>
+            <input type="password" id="confirmPassword" placeholder="รหัสผ่านอีกครั้ง">
+        </div>
+
+        <div class="recaptcha-box" id="recaptchaBtn">
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <div class="recaptcha-checkbox" id="checkboxMark"></div>
+                <span class="recaptcha-text">I'm not a robot</span>
+            </div>
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/RecaptchaLogo.svg/1200px-RecaptchaLogo.svg.png" class="recaptcha-logo" alt="reCAPTCHA">
+        </div>
+        <br>
+
+        <button class="btn-submit" id="btnRegister">➔ สมัครสมาชิก</button>
+    </div>
+
+    <div class="footer">
+        สงวนสิทธิ์ © 2024 PEACHWEB. All right reserved.<br>
+        ติดต่อสอบถาม / แจ้งปัญหา
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBORnXLQdZnETh9AMFMUx50FlLylKCVc2w",
+            authDomain: "web-rental-system-d8894.firebaseapp.com",
+            projectId: "web-rental-system-d8894",
+            storageBucket: "web-rental-system-d8894.firebasestorage.app",
+            messagingSenderId: "389385259939",
+            appId: "1:389385259939:web:5a8de35f4a06b906e66816"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let isRobotChecked = false;
+
+        // ฟังก์ชันคลิกกล่อง I'm not a robot
+        document.getElementById('recaptchaBtn').addEventListener('click', () => {
+            isRobotChecked = !isRobotChecked;
+            const checkbox = document.getElementById('checkboxMark');
+            if(isRobotChecked) {
+                checkbox.classList.add('checked');
+            } else {
+                checkbox.classList.remove('checked');
+            }
+        });
+
+        function showToast(message, bgColor = "#e74c3c") {
+            const toast = document.getElementById("toast");
+            toast.innerText = message;
+            toast.style.backgroundColor = bgColor;
+            toast.classList.add("show");
+            setTimeout(() => { toast.classList.remove("show"); }, 3000);
+        }
+
+        document.getElementById('btnRegister').addEventListener('click', async () => {
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if(!username || !password || !confirmPassword) {
+                return showToast("กรุณากรอกข้อมูลให้ครบทุกช่อง");
+            }
+            if(password !== confirmPassword) {
+                return showToast("รหัสผ่านไม่ตรงกัน กรุณาตรวจสอบอีกครั้ง");
+            }
+            if(password.length < 6) {
+                return showToast("รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร");
+            }
+            if(!isRobotChecked) {
+                return showToast("กรุณายืนยันว่าคุณไม่ใช่โปรแกรมอัตโนมัติ");
+            }
+
+            // ทริคแปลง Username เป็น Email เพื่อให้ Firebase ทำงานได้
+            const fakeEmail = username.toLowerCase() + "@peachweb.com";
+            const btn = document.getElementById('btnRegister');
+            btn.innerText = "กำลังสมัครสมาชิก...";
+            btn.disabled = true;
+
+            try {
+                // สมัครสมาชิกลง Firebase
+                const userCredential = await createUserWithEmailAndPassword(auth, fakeEmail, password);
+                const user = userCredential.user;
+
+                // บันทึกชื่อผู้ใช้ลงฐานข้อมูล Firestore เผื่อดึงมาแสดงผล
+                await setDoc(doc(db, "users", user.uid), {
+                    username: username,
+                    role: "user",
+                    createdAt: new Date()
+                });
+
+                showToast("สมัครสมาชิกสำเร็จ! กำลังพาไปหน้าล็อกอิน...", "#2ecc71");
+                
+                setTimeout(() => {
+                    window.location.href = "login.html";
+                }, 1500);
+
+            } catch (error) {
+                console.error(error);
+                showToast("เกิดข้อผิดพลาด: ชื่อผู้ใช้นี้อาจมีคนใช้แล้ว");
+                btn.innerText = "➔ สมัครสมาชิก";
+                btn.disabled = false;
+            }
+        });
+    </script>
 </body>
 </html>
