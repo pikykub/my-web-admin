@@ -6,28 +6,68 @@
     <title>เข้าสู่ระบบ - PeachWeb</title>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Kanit', sans-serif; background-color: #f8f9fa; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .card { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); width: 100%; max-width: 400px; text-align: center; }
-        h2 { color: #ff0040; margin-bottom: 20px; font-size: 28px; }
-        input { width: 100%; padding: 15px; margin: 10px 0; border: 1px solid #eee; border-radius: 12px; box-sizing: border-box; font-family: 'Kanit'; font-size: 15px; background: #fafafa; }
-        input:focus { outline: none; border-color: #ff0040; background: white; }
-        button { width: 100%; padding: 15px; background-color: #ff0040; color: white; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 16px; margin-top: 15px; transition: 0.3s; }
-        button:hover { background-color: #d60036; transform: translateY(-2px); }
-        .link { margin-top: 20px; font-size: 14px; color: #666; }
-        a { color: #ff0040; text-decoration: none; font-weight: bold; }
-        #error-msg { color: #e74c3c; font-size: 14px; margin-top: 10px; display: none; font-weight: 600; }
+        :root { --main-red: #ea334a; --success: #2ecc71; --error: #e74c3c; }
+        body { font-family: 'Kanit', sans-serif; background-color: #fcfcfc; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        
+        /* กล่องล็อกอิน */
+        .card { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); width: 100%; max-width: 350px; text-align: center; }
+        h2 { color: var(--main-red); margin-bottom: 5px; font-size: 28px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .subtitle { color: #666; font-size: 14px; margin-bottom: 30px; }
+        
+        /* ช่องกรอกข้อมูล */
+        input { width: 100%; padding: 15px; margin: 10px 0; border: 1px solid #ddd; border-radius: 12px; box-sizing: border-box; font-family: 'Kanit'; font-size: 15px; background: #fafafa; transition: 0.3s; }
+        input:focus { outline: none; border-color: var(--main-red); background: white; box-shadow: 0 0 0 3px rgba(234, 51, 74, 0.1); }
+        
+        /* ปุ่มล็อกอิน */
+        button { width: 100%; padding: 15px; background-color: var(--main-red); color: white; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 16px; margin-top: 15px; transition: 0.3s; }
+        button:hover { background-color: #d12b41; transform: translateY(-2px); }
+        button:disabled { background-color: #ff99a8; cursor: not-allowed; transform: none; }
+        
+        /* ลิงก์สมัครสมาชิก */
+        .link { margin-top: 25px; font-size: 14px; color: #666; }
+        a { color: var(--main-red); text-decoration: none; font-weight: bold; }
+
+        /* 🌟 ระบบ Toast Notification (ป็อปอัปสี่เหลี่ยมสุดฮิต) 🌟 */
+        #toast {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: white;
+            color: #333;
+            text-align: center;
+            border-radius: 12px;
+            padding: 16px 20px;
+            position: fixed;
+            z-index: 1000;
+            left: 50%;
+            top: -50px; /* ซ่อนไว้ด้านบนก่อน */
+            transform: translateX(-50%);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            font-weight: 600;
+            opacity: 0;
+            transition: opacity 0.4s, top 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55); /* เด้งดึ๋งๆ */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            border-left: 6px solid;
+        }
+        #toast.show {
+            visibility: visible;
+            opacity: 1;
+            top: 40px; /* เด้งลงมาตำแหน่งนี้ */
+        }
     </style>
 </head>
 <body>
 
+<div id="toast">ข้อความจะขึ้นตรงนี้</div>
+
 <div class="card">
     <h2>🍑 PeachWeb</h2>
-    <p style="color: #666; margin-top: -10px; margin-bottom: 25px;">เข้าสู่ระบบเพื่อจัดการเว็บไซต์ของคุณ</p>
+    <div class="subtitle">เข้าสู่ระบบเพื่อจัดการเว็บไซต์ของคุณ</div>
     
     <input type="email" id="email" placeholder="อีเมล / Email">
     <input type="password" id="password" placeholder="รหัสผ่าน / Password">
-    
-    <p id="error-msg"></p>
     
     <button id="btnLogin">เข้าสู่ระบบ</button>
     
@@ -52,50 +92,58 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
+    // ฟังก์ชันเรียกป็อปอัปสี่เหลี่ยม
+    function showToast(message, type) {
+        const toast = document.getElementById("toast");
+        toast.innerText = message;
+        
+        if (type === "success") {
+            toast.style.borderLeftColor = "var(--success)"; // ขอบสีเขียว
+            toast.innerHTML = `✅ ${message}`;
+        } else {
+            toast.style.borderLeftColor = "var(--error)"; // ขอบสีแดง
+            toast.innerHTML = `❌ ${message}`;
+        }
+
+        toast.classList.add("show");
+        
+        // ซ่อนป็อปอัปหลังผ่านไป 3 วินาที
+        setTimeout(() => {
+            toast.classList.remove("show");
+        }, 3000);
+    }
+
     document.getElementById('btnLogin').addEventListener('click', async () => {
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
         const btn = document.getElementById('btnLogin');
-        const errorMsg = document.getElementById('error-msg');
         
-        // ซ่อน Error และเปลี่ยนปุ่มเป็นโหมดกำลังโหลด
-        errorMsg.style.display = 'none';
-        btn.innerText = "กำลังตรวจสอบข้อมูล... ⏳";
-        btn.style.opacity = "0.7";
-        btn.style.pointerEvents = "none"; // ป้องกันการกดซ้ำ
-
         if(!email || !password) {
-            errorMsg.innerText = "⚠️ กรุณากรอกอีเมลและรหัสผ่านให้ครบถ้วน";
-            errorMsg.style.display = 'block';
-            btn.innerText = "เข้าสู่ระบบ";
-            btn.style.opacity = "1";
-            btn.style.pointerEvents = "auto";
+            showToast("กรุณากรอกข้อมูลให้ครบถ้วน", "error");
             return;
         }
+
+        // เปลี่ยนสถานะปุ่มตอนกำลังโหลด
+        btn.innerText = "กำลังตรวจสอบ...";
+        btn.disabled = true;
 
         try {
             await signInWithEmailAndPassword(auth, email, password);
             
-            // ✅ เข้าสู่ระบบสำเร็จ -> เปลี่ยนปุ่มเป็นสีเขียว ไม่มี Popup เด้ง
-            btn.innerText = "เข้าสู่ระบบสำเร็จ! กำลังพาไปหน้าหลัก... ✨";
-            btn.style.background = "#2ecc71"; 
-            btn.style.opacity = "1";
+            // 🌟 1. เด้งป็อปอัปสีเขียวว่าสำเร็จ!
+            showToast("ล็อกอินสำเร็จ!", "success");
+            btn.innerText = "เข้าสู่ระบบสำเร็จ!";
             
-            // หน่วงเวลา 1.5 วินาทีให้ดูมีเอฟเฟกต์โหลดแบบล้ำๆ แล้ววาร์ปไปหน้าแรก
+            // 🌟 2. วาร์ปไปหน้าหลักหลังจาก 1.5 วินาที
             setTimeout(() => {
-                window.location.href = "index.html";
+                window.location.href = "index.html"; 
             }, 1500);
 
         } catch (error) {
-            // ❌ รหัสผ่านผิด -> แจ้งเตือนสีแดงด้านล่าง
-            errorMsg.innerText = "❌ อีเมลหรือรหัสผ่านไม่ถูกต้อง กรุณาลองใหม่ครับ";
-            errorMsg.style.display = 'block';
-            
-            // คืนค่าปุ่มกลับมาเป็นเหมือนเดิม
+            // ❌ เด้งป็อปอัปสีแดงว่ารหัสผิด
+            showToast("อีเมลหรือรหัสผ่านไม่ถูกต้อง", "error");
             btn.innerText = "เข้าสู่ระบบ";
-            btn.style.opacity = "1";
-            btn.style.pointerEvents = "auto";
-            btn.style.background = "#ff0040"; 
+            btn.disabled = false;
         }
     });
 </script>
