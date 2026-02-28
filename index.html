@@ -3,107 +3,145 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบควบคุมแอดมินสูงสุด (Super Admin)</title>
+    <title>ZXNT STUDIO - ร้านเช่าเว็บและระบบจัดการ</title>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Kanit', sans-serif; background-color: #f4f7f6; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
-        .container { max-width: 500px; width: 100%; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; }
-        h1 { color: #2c3e50; font-size: 24px; margin-bottom: 20px; }
-        .shop-card { border: 1px solid #eee; padding: 20px; border-radius: 15px; margin-top: 10px; }
-        .status-badge { display: inline-block; padding: 5px 15px; border-radius: 20px; font-size: 14px; margin-bottom: 15px; font-weight: bold; }
-        .active { background-color: #e8f5e9; color: #2e7d32; }
-        .suspended { background-color: #ffebee; color: #c62828; }
-        .btn { width: 100%; padding: 15px; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 16px; transition: 0.3s; margin-top: 10px; }
-        .btn-off { background-color: #ff4d4d; color: white; box-shadow: 0 4px 15px rgba(255, 77, 77, 0.3); }
-        .btn-on { background-color: #2ecc71; color: white; box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3); }
-        .btn-logout { background-color: #f0f0f0; color: #666; font-size: 14px; margin-top: 20px; }
+        :root { --main-red: #ff0040; --dark: #1a1a1a; }
+        body { font-family: 'Kanit', sans-serif; margin: 0; background: #fcfcfc; }
+        
+        /* Navbar */
+        .navbar { background: var(--main-red); padding: 12px 5%; display: flex; justify-content: space-between; align-items: center; color: white; position: sticky; top: 0; z-index: 1000; }
+        .nav-links a, .nav-links span { color: white; text-decoration: none; margin-left: 20px; cursor: pointer; font-size: 14px; }
+        .admin-only-btn { background: #222; padding: 6px 15px; border-radius: 20px; display: none; font-weight: bold; border: 1px solid white; }
+        .btn-login-display { background: white; color: var(--main-red) !important; padding: 6px 15px; border-radius: 20px; font-weight: bold; }
+
+        /* Banner */
+        .hero { background: var(--dark); color: white; text-align: center; padding: 80px 20px; border-bottom: 5px solid var(--main-red); }
+        .hero h1 { font-size: 36px; margin: 0; }
+
+        /* Content */
+        .container { max-width: 1100px; margin: 40px auto; padding: 0 20px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; }
+        .card { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.05); text-align: center; border: 1px solid #eee; transition: 0.3s; }
+        .card:hover { transform: translateY(-5px); }
+        .card-img { height: 180px; background: #333; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        .card-body { padding: 20px; }
+        .price { color: var(--main-red); font-size: 24px; font-weight: bold; margin: 10px 0; }
+        .btn-group { display: flex; gap: 10px; }
+        .btn { flex: 1; padding: 10px; border-radius: 8px; border: none; cursor: pointer; font-family: 'Kanit'; font-weight: bold; }
+        .btn-demo { background: #eee; color: #333; text-decoration: none; display: inline-block; line-height: 20px; }
+        .btn-buy { background: var(--main-red); color: white; }
+
+        /* Admin Panel Section (Hidden by default) */
+        #adminPanel { display: none; background: #fff; margin-top: 40px; padding: 30px; border-radius: 15px; border: 3px dashed var(--main-red); box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .status-badge { padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 14px; }
+        .active-bg { background: #e8f5e9; color: #2e7d32; }
+        .off-bg { background: #ffebee; color: #c62828; }
     </style>
 </head>
 <body>
 
-<div class="container" id="adminContent" style="display:none;">
-    <h1>แผงควบคุมแอดมิน ⚙️</h1>
-    <div id="display">กำลังโหลดข้อมูล...</div>
-    <button class="btn btn-logout" onclick="window.logout()">ออกจากระบบ</button>
-</div>
+    <nav class="navbar">
+        <div style="font-size: 22px; font-weight: bold;">ZXNT STUDIO</div>
+        <div class="nav-links">
+            <a href="index.html">หน้าหลัก</a>
+            <span id="adminBtn" class="admin-only-btn" onclick="toggleAdminPanel()">⚙️ จัดการระบบ</span>
+            <a href="login.html" id="loginBtn" class="btn-login-display">เข้าสู่ระบบ</a>
+            <span id="userGreet" style="margin-left:10px; font-size: 12px;"></span>
+        </div>
+    </nav>
 
-<script type="module">
-    // 1. นำเข้า Firebase
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    import { getFirestore, doc, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+    <div class="hero">
+        <h1>บริการเช่าเว็บไซต์สำเร็จรูป</h1>
+        <p>เลือกแบบที่ชอบ ดูตัวอย่างได้ทันที ระบบทำงานอัตโนมัติ 24 ชม.</p>
+    </div>
 
-    // 2. รหัสเชื่อมต่อของคุณ
-    const firebaseConfig = {
-        apiKey: "AIzaSyBORnXLQdZnETh9AMFMUx50FlLylKCVc2w",
-        authDomain: "web-rental-system-d8894.firebaseapp.com",
-        projectId: "web-rental-system-d8894",
-        storageBucket: "web-rental-system-d8894.firebasestorage.app",
-        messagingSenderId: "389385259939",
-        appId: "1:389385259939:web:5a8de35f4a06b906e66816"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const auth = getAuth(app);
-
-    // ⚠️ แก้ไขอีเมลของคุณตรงนี้!
-    const ADMIN_EMAILS = ["feirnbiddu10@gmail.com"]; 
-
-    // 3. ระบบตรวจยศ (Security Guard)
-    onAuthStateChanged(auth, (user) => {
-        if (user) {
-            if (ADMIN_EMAILS.includes(user.email)) {
-                // เป็นแอดมินตัวจริง -> ให้เห็นเนื้อหา
-                document.getElementById('adminContent').style.display = 'block';
-                startListening();
-            } else {
-                // เป็นลูกค้าธรรมดา -> ดีดไปหน้าขายของ
-                alert("ขออภัย เฉพาะแอดมินเท่านั้นที่เข้าหน้านี้ได้");
-                window.location.href = "store.html";
-            }
-        } else {
-            // ยังไม่ล็อกอิน -> ดีดไปหน้าล็อกอิน
-            window.location.href = "login.html";
-        }
-    });
-
-    // 4. ฟังก์ชันดึงข้อมูลร้านค้า (รีโมทตัดไฟ)
-    function startListening() {
-        const display = document.getElementById('display');
-        const shopRef = doc(db, "shops", "shop001");
-
-        onSnapshot(shopRef, (docSnap) => {
-            if (docSnap.exists()) {
-                const data = docSnap.data();
-                const isActive = data.status === 'active';
-                
-                display.innerHTML = `
-                    <div class="shop-card">
-                        <h3>ร้าน: ${data.name || 'shop001'}</h3>
-                        <div class="status-badge ${isActive ? 'active' : 'suspended'}">
-                            ● ${isActive ? 'ระบบเปิดใช้งานปกติ' : 'ระบบถูกระงับ'}
-                        </div>
-                        <button class="btn ${isActive ? 'btn-off' : 'btn-on'}" 
-                                onclick="window.updateStatus('${isActive ? 'suspended' : 'active'}')">
-                            ${isActive ? 'สั่งปิดเว็บลูกค้า ✂️' : 'สั่งเปิดเว็บลูกค้า ✅'}
-                        </button>
+    <div class="container">
+        <h2>🔥 เว็บไซต์แนะนำ</h2>
+        <div class="grid">
+            <div class="card">
+                <div class="card-img">SHOP TEMPLATE 01</div>
+                <div class="card-body">
+                    <h3>เว็บขายของแฟชั่น</h3>
+                    <div class="price">฿ 300 / เดือน</div>
+                    <div class="btn-group">
+                        <a href="https://pikykub.github.io/baobeishop/" target="_blank" class="btn btn-demo">ดูตัวอย่าง</a>
+                        <button class="btn btn-buy">เช่าเลย</button>
                     </div>
-                `;
+                </div>
+            </div>
+        </div>
+
+        <div id="adminPanel">
+            <h2 style="color:var(--main-red); margin-top:0;">🛠 แผงควบคุมแอดมินสูงสุด</h2>
+            <hr>
+            <div id="shopManager">กำลังดึงข้อมูล...</div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getFirestore, doc, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBORnXLQdZnETh9AMFMUx50FlLylKCVc2w",
+            authDomain: "web-rental-system-d8894.firebaseapp.com",
+            projectId: "web-rental-system-d8894",
+            storageBucket: "web-rental-system-d8894.firebasestorage.app",
+            messagingSenderId: "389385259939",
+            appId: "1:389385259939:web:5a8de35f4a06b906e66816"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        // ⚠️ แก้ไขอีเมลของคุณตรงนี้!
+        const ADMIN_LIST = ["feirnbiddu10@gmail.com"]; 
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                document.getElementById('loginBtn').style.display = 'none';
+                document.getElementById('userGreet').innerText = "ผู้ใช้: " + user.email;
+                
+                if (ADMIN_LIST.includes(user.email)) {
+                    document.getElementById('adminBtn').style.display = 'inline-block';
+                    initAdminControl();
+                }
             }
         });
-    }
 
-    // 5. ฟังก์ชันปุ่มกด
-    window.updateStatus = async (newStatus) => {
-        const shopRef = doc(db, "shops", "shop001");
-        await updateDoc(shopRef, { status: newStatus });
-    };
+        window.toggleAdminPanel = () => {
+            const p = document.getElementById('adminPanel');
+            p.style.display = (p.style.display === 'block') ? 'none' : 'block';
+            if(p.style.display === 'block') p.scrollIntoView({ behavior: 'smooth' });
+        };
 
-    window.logout = () => {
-        signOut(auth).then(() => { window.location.href = "login.html"; });
-    };
+        function initAdminControl() {
+            onSnapshot(doc(db, "shops", "shop001"), (snap) => {
+                if (snap.exists()) {
+                    const data = snap.data();
+                    const active = data.status === 'active';
+                    document.getElementById('shopManager').innerHTML = `
+                        <div style="padding:15px; background:#f9f9f9; border-radius:10px;">
+                            <strong>ชื่อร้าน: ${data.name}</strong><br><br>
+                            สถานะปัจจุบัน: <span class="status-badge ${active ? 'active-bg' : 'off-bg'}">
+                                ${active ? '🟢 เปิดใช้งานปกติ' : '🔴 ถูกระงับ'}
+                            </span><br><br>
+                            <button onclick="updateShopStatus('${active ? 'suspended' : 'active'}')" 
+                                style="background:${active ? '#ff4d4d' : '#2ecc71'}; color:white; border:none; padding:12px 20px; border-radius:8px; cursor:pointer; font-weight:bold; width:100%;">
+                                ${active ? 'กดเพื่อระงับการใช้งาน (Suspend)' : 'กดเพื่อเปิดใช้งานเว็บลูกค้า'}
+                            </button>
+                        </div>
+                    `;
+                }
+            });
+        }
 
-</script>
+        window.updateShopStatus = async (s) => {
+            await updateDoc(doc(db, "shops", "shop001"), { status: s });
+        };
+    </script>
 </body>
 </html>
