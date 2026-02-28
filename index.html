@@ -3,103 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PeachWeb - ระบบเช่าเว็บพรีเมียม</title>
+    <title>เข้าสู่ระบบ - PeachWeb</title>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        :root { --peach: #ff8a80; --dark: #1a1a1a; --main-red: #ff0040; }
-        body { font-family: 'Kanit', sans-serif; margin: 0; background: #fcfcfc; }
-        
-        /* Navbar */
-        .navbar { background: var(--main-red); padding: 12px 5%; display: flex; justify-content: space-between; align-items: center; color: white; position: sticky; top: 0; z-index: 1000; }
-        .nav-links span, .nav-links a { color: white; text-decoration: none; margin-left: 20px; font-size: 14px; cursor: pointer; }
-        .btn-auth { background: white !important; color: var(--main-red) !important; padding: 6px 15px; border-radius: 20px; font-weight: bold; }
-
-        /* Floating Contact Buttons */
-        .floating-contact { position: fixed; bottom: 20px; right: 20px; z-index: 999; display: flex; flex-direction: column; gap: 10px; }
-        .contact-icon { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; text-decoration: none; font-size: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
-        .facebook { background: #1877F2; } .line { background: #06C755; }
-
-        /* Chat System */
-        .chat-container { max-width: 1100px; margin: 20px auto; background: white; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); height: 400px; display: flex; flex-direction: column; }
-        .chat-messages { flex: 1; padding: 15px; overflow-y: auto; border-bottom: 1px solid #eee; }
-        .chat-input { padding: 10px; display: flex; gap: 10px; }
-        .chat-input input { flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #ddd; }
-
-        .container { max-width: 1100px; margin: 40px auto; padding: 0 20px; }
+        body { font-family: 'Kanit', sans-serif; background-color: #f8f9fa; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); width: 100%; max-width: 400px; text-align: center; }
+        h2 { color: #ff0040; margin-bottom: 20px; font-size: 28px; }
+        input { width: 100%; padding: 15px; margin: 10px 0; border: 1px solid #eee; border-radius: 12px; box-sizing: border-box; font-family: 'Kanit'; font-size: 15px; background: #fafafa; }
+        input:focus { outline: none; border-color: #ff0040; background: white; }
+        button { width: 100%; padding: 15px; background-color: #ff0040; color: white; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 16px; margin-top: 15px; transition: 0.3s; }
+        button:hover { background-color: #d60036; transform: translateY(-2px); }
+        .link { margin-top: 20px; font-size: 14px; color: #666; }
+        a { color: #ff0040; text-decoration: none; font-weight: bold; }
+        #error-msg { color: #e74c3c; font-size: 14px; margin-top: 10px; display: none; font-weight: 600; }
     </style>
 </head>
 <body>
 
-    <nav class="navbar">
-        <div style="font-size: 24px; font-weight: bold;">🍑 PeachWeb</div>
-        <div class="nav-links">
-            <a href="index.html">หน้าหลัก</a>
-            <span id="adminBtn" style="display:none;" onclick="toggleAdmin()">⚙️ หลังบ้าน</span>
-            <a href="login.html" id="loginBtn" class="btn-auth">เข้าสู่ระบบ</a>
-            <span id="userGreet" style="font-weight:bold;"></span>
-        </div>
-    </nav>
-
-    <div class="container">
-        <div id="stats" style="display:flex; justify-content:space-around; margin-bottom:30px; text-align:center;">
-            <div><b id="onlineCount" style="color:var(--peach); font-size:24px;">0</b><br><span>ออนไลน์ตอนนี้</span></div>
-            <div><b id="totalVisit" style="color:var(--peach); font-size:24px;">0</b><br><span>ผู้เข้าชมทั้งหมด</span></div>
-        </div>
-
-        <h3>🗨️ แชทรวมชาว PeachWeb</h3>
-        <div class="chat-container">
-            <div class="chat-messages" id="chatMessages"></div>
-            <div class="chat-input">
-                <input type="text" id="msgInput" placeholder="พิมพ์ข้อความที่นี่...">
-                <button onclick="sendMsg()" style="background:var(--peach); border:none; border-radius:8px; padding:0 20px; color:white;">ส่ง</button>
-            </div>
-        </div>
+<div class="card">
+    <h2>🍑 PeachWeb</h2>
+    <p style="color: #666; margin-top: -10px; margin-bottom: 25px;">เข้าสู่ระบบเพื่อจัดการเว็บไซต์ของคุณ</p>
+    
+    <input type="email" id="email" placeholder="อีเมล / Email">
+    <input type="password" id="password" placeholder="รหัสผ่าน / Password">
+    
+    <p id="error-msg"></p>
+    
+    <button id="btnLogin">เข้าสู่ระบบ</button>
+    
+    <div class="link">
+        ยังไม่มีบัญชี? <a href="register.html">สมัครสมาชิก</a>
     </div>
+</div>
 
-    <div class="floating-contact">
-        <a href="#" id="fbLink" class="contact-icon facebook">f</a>
-        <a href="#" id="lineLink" class="contact-icon line">L</a>
-    </div>
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getFirestore, doc, onSnapshot, updateDoc, arrayUnion, setDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+    const firebaseConfig = {
+        apiKey: "AIzaSyBORnXLQdZnETh9AMFMUx50FlLylKCVc2w",
+        authDomain: "web-rental-system-d8894.firebaseapp.com",
+        projectId: "web-rental-system-d8894",
+        storageBucket: "web-rental-system-d8894.firebasestorage.app",
+        messagingSenderId: "389385259939",
+        appId: "1:389385259939:web:5a8de35f4a06b906e66816"
+    };
 
-        const firebaseConfig = { 
-            apiKey: "AIzaSyBORnXLQdZnETh9AMFMUx50FlLylKCVc2w",
-            authDomain: "web-rental-system-d8894.firebaseapp.com",
-            projectId: "web-rental-system-d8894",
-            storageBucket: "web-rental-system-d8894.firebasestorage.app",
-            messagingSenderId: "389385259939",
-            appId: "1:389385259939:web:5a8de35f4a06b906e66816"
-        };
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
 
-        const ADMIN_ID = "feirnbiddu10@gmail.com";
+    document.getElementById('btnLogin').addEventListener('click', async () => {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const btn = document.getElementById('btnLogin');
+        const errorMsg = document.getElementById('error-msg');
+        
+        // ซ่อน Error และเปลี่ยนปุ่มเป็นโหมดกำลังโหลด
+        errorMsg.style.display = 'none';
+        btn.innerText = "กำลังตรวจสอบข้อมูล... ⏳";
+        btn.style.opacity = "0.7";
+        btn.style.pointerEvents = "none"; // ป้องกันการกดซ้ำ
 
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                document.getElementById('loginBtn').style.display = 'none';
-                document.getElementById('userGreet').innerText = "🍑 " + (user.displayName || user.email);
-                if (user.email === ADMIN_ID) document.getElementById('adminBtn').style.display = 'inline-block';
-                updateStats(); // อัปเดตสถิติเรียลไทม์
-            }
-        });
-
-        // ระบบสถิติเรียลไทม์
-        async function updateStats() {
-            const statRef = doc(db, "stats", "global");
-            onSnapshot(statRef, (snap) => {
-                if (snap.exists()) {
-                    const data = snap.data();
-                    document.getElementById('onlineCount').innerText = data.online || 0;
-                    document.getElementById('totalVisit').innerText = data.total || 0;
-                }
-            });
+        if(!email || !password) {
+            errorMsg.innerText = "⚠️ กรุณากรอกอีเมลและรหัสผ่านให้ครบถ้วน";
+            errorMsg.style.display = 'block';
+            btn.innerText = "เข้าสู่ระบบ";
+            btn.style.opacity = "1";
+            btn.style.pointerEvents = "auto";
+            return;
         }
-    </script>
+
+        try {
+            await signInWithEmailAndPassword(auth, email, password);
+            
+            // ✅ เข้าสู่ระบบสำเร็จ -> เปลี่ยนปุ่มเป็นสีเขียว ไม่มี Popup เด้ง
+            btn.innerText = "เข้าสู่ระบบสำเร็จ! กำลังพาไปหน้าหลัก... ✨";
+            btn.style.background = "#2ecc71"; 
+            btn.style.opacity = "1";
+            
+            // หน่วงเวลา 1.5 วินาทีให้ดูมีเอฟเฟกต์โหลดแบบล้ำๆ แล้ววาร์ปไปหน้าแรก
+            setTimeout(() => {
+                window.location.href = "index.html";
+            }, 1500);
+
+        } catch (error) {
+            // ❌ รหัสผ่านผิด -> แจ้งเตือนสีแดงด้านล่าง
+            errorMsg.innerText = "❌ อีเมลหรือรหัสผ่านไม่ถูกต้อง กรุณาลองใหม่ครับ";
+            errorMsg.style.display = 'block';
+            
+            // คืนค่าปุ่มกลับมาเป็นเหมือนเดิม
+            btn.innerText = "เข้าสู่ระบบ";
+            btn.style.opacity = "1";
+            btn.style.pointerEvents = "auto";
+            btn.style.background = "#ff0040"; 
+        }
+    });
+</script>
 </body>
 </html>
