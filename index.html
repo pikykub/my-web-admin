@@ -3,79 +3,103 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZXNT STUDIO - ร้านเช่าเว็บและระบบจัดการ</title>
+    <title>ZXNT STUDIO - Premium Web Rental</title>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        :root { --main-red: #ff0040; --dark: #1a1a1a; }
-        body { font-family: 'Kanit', sans-serif; margin: 0; background: #fcfcfc; }
-        
+        :root { --main-red: #ff0040; --dark-bg: #0a0a0a; --card-bg: #151515; }
+        body { font-family: 'Kanit', sans-serif; margin: 0; background: var(--dark-bg); color: white; overflow-x: hidden; }
+
+        /* 🌀 1. Loading Screen */
+        #loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--dark-bg); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.5s ease; }
+        .pulse-logo { width: 80px; height: 80px; background: var(--main-red); border-radius: 50%; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 0, 64, 0.7); } 70% { transform: scale(1); box-shadow: 0 0 0 20px rgba(255, 0, 64, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 0, 64, 0); } }
+
         /* Navbar */
-        .navbar { background: var(--main-red); padding: 12px 5%; display: flex; justify-content: space-between; align-items: center; color: white; position: sticky; top: 0; z-index: 1000; }
-        .nav-links a, .nav-links span { color: white; text-decoration: none; margin-left: 20px; cursor: pointer; font-size: 14px; }
-        .admin-only-btn { background: #222; padding: 6px 15px; border-radius: 20px; display: none; font-weight: bold; border: 1px solid white; }
-        .btn-login-display { background: white; color: var(--main-red) !important; padding: 6px 15px; border-radius: 20px; font-weight: bold; }
+        .navbar { background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #222; }
+        .logo { font-size: 24px; font-weight: bold; color: var(--main-red); }
+        .admin-btn { border: 1px solid var(--main-red); padding: 5px 15px; border-radius: 20px; color: var(--main-red); cursor: pointer; display: none; font-size: 14px; }
 
-        /* Banner */
-        .hero { background: var(--dark); color: white; text-align: center; padding: 80px 20px; border-bottom: 5px solid var(--main-red); }
-        .hero h1 { font-size: 36px; margin: 0; }
+        .container { max-width: 1100px; margin: 50px auto; padding: 0 20px; }
 
-        /* Content */
-        .container { max-width: 1100px; margin: 40px auto; padding: 0 20px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; }
-        .card { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.05); text-align: center; border: 1px solid #eee; transition: 0.3s; }
-        .card:hover { transform: translateY(-5px); }
-        .card-img { height: 180px; background: #333; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; }
-        .card-body { padding: 20px; }
-        .price { color: var(--main-red); font-size: 24px; font-weight: bold; margin: 10px 0; }
-        .btn-group { display: flex; gap: 10px; }
-        .btn { flex: 1; padding: 10px; border-radius: 8px; border: none; cursor: pointer; font-family: 'Kanit'; font-weight: bold; }
-        .btn-demo { background: #eee; color: #333; text-decoration: none; display: inline-block; line-height: 20px; }
-        .btn-buy { background: var(--main-red); color: white; }
+        /* 📦 2. Store Card */
+        .card { background: var(--card-bg); border-radius: 20px; border: 1px solid #222; overflow: hidden; transition: 0.4s; }
+        .card:hover { border-color: var(--main-red); transform: translateY(-10px); }
+        .card-img { height: 250px; background: #000; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .card-img img { width: 100%; height: 100%; object-fit: cover; }
+        .card-info { padding: 25px; text-align: center; }
+        .price { font-size: 36px; font-weight: bold; color: var(--main-red); margin: 10px 0; }
+        .btn-rent { background: var(--main-red); color: white; border: none; padding: 15px 40px; border-radius: 12px; font-weight: bold; cursor: pointer; width: 100%; font-size: 16px; }
 
-        /* Admin Panel Section (Hidden by default) */
-        #adminPanel { display: none; background: #fff; margin-top: 40px; padding: 30px; border-radius: 15px; border: 3px dashed var(--main-red); box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-        .status-badge { padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 14px; }
-        .active-bg { background: #e8f5e9; color: #2e7d32; }
-        .off-bg { background: #ffebee; color: #c62828; }
+        /* 🔐 3. Admin Dashboard */
+        #adminArea { display: none; background: #111; padding: 30px; border-radius: 25px; border: 1px dashed var(--main-red); margin-top: 50px; box-shadow: 0 0 20px rgba(255,0,64,0.1); }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; color: #888; margin-bottom: 5px; font-size: 13px; }
+        input { width: 100%; padding: 12px; background: #1a1a1a; border: 1px solid #333; color: white; border-radius: 10px; box-sizing: border-box; font-family: 'Kanit'; }
+        .btn-save { background: #2ecc71; color: white; border: none; padding: 15px; border-radius: 12px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 10px; }
+
+        /* 💰 4. Payment UI */
+        #payModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 10000; justify-content: center; align-items: center; }
+        .modal-body { background: white; color: #333; padding: 30px; border-radius: 25px; width: 90%; max-width: 380px; text-align: center; }
+        .qr-box { width: 220px; height: 220px; background: #f0f0f0; margin: 20px auto; border-radius: 15px; overflow: hidden; }
+        .qr-box img { width: 100%; height: 100%; }
+        .bank-details { background: #f9f9f9; padding: 15px; border-radius: 15px; text-align: left; margin: 15px 0; border: 1px solid #eee; }
     </style>
 </head>
-<body>
+<body onload="closeLoader()">
+
+    <div id="loader">
+        <div class="pulse-logo"></div>
+        <p style="margin-top: 20px; letter-spacing: 3px; font-weight: 300;">ZXNT STUDIO LOADING...</p>
+    </div>
 
     <nav class="navbar">
-        <div style="font-size: 22px; font-weight: bold;">ZXNT STUDIO</div>
-        <div class="nav-links">
-            <a href="index.html">หน้าหลัก</a>
-            <span id="adminBtn" class="admin-only-btn" onclick="toggleAdminPanel()">⚙️ จัดการระบบ</span>
-            <a href="login.html" id="loginBtn" class="btn-login-display">เข้าสู่ระบบ</a>
-            <span id="userGreet" style="margin-left:10px; font-size: 12px;"></span>
+        <div class="logo">ZXNT STUDIO</div>
+        <div id="navLinks">
+            <span id="adminBtn" class="admin-btn" onclick="toggleAdmin()">ADMIN PANEL</span>
+            <span id="userText" style="margin-left:15px; font-size:12px; color:#888;"></span>
         </div>
     </nav>
 
-    <div class="hero">
-        <h1>บริการเช่าเว็บไซต์สำเร็จรูป</h1>
-        <p>เลือกแบบที่ชอบ ดูตัวอย่างได้ทันที ระบบทำงานอัตโนมัติ 24 ชม.</p>
-    </div>
-
     <div class="container">
-        <h2>🔥 เว็บไซต์แนะนำ</h2>
-        <div class="grid">
-            <div class="card">
-                <div class="card-img">SHOP TEMPLATE 01</div>
-                <div class="card-body">
-                    <h3>เว็บขายของแฟชั่น</h3>
-                    <div class="price">฿ 300 / เดือน</div>
-                    <div class="btn-group">
-                        <a href="https://pikykub.github.io/baobeishop/" target="_blank" class="btn btn-demo">ดูตัวอย่าง</a>
-                        <button class="btn btn-buy">เช่าเลย</button>
-                    </div>
+        <div class="card">
+            <div class="card-img" id="pImgPreview"><img src="https://via.placeholder.com/600x400/111/ff0040?text=WEB+PREVIEW" alt="Web Preview"></div>
+            <div class="card-info">
+                <h2 id="pNameDisplay" style="margin:0;">กำลังโหลดข้อมูล...</h2>
+                <div class="price" id="pPriceDisplay">฿ 0</div>
+                <div style="display:flex; gap:10px;">
+                    <a id="pDemoBtn" href="#" target="_blank" style="flex:1; background:#333; color:white; text-decoration:none; padding:15px; border-radius:12px; font-weight:bold; text-align:center;">ดูตัวอย่าง</a>
+                    <button class="btn-rent" onclick="openPay()" style="flex:1;">เช่าใช้งาน</button>
                 </div>
             </div>
         </div>
 
-        <div id="adminPanel">
-            <h2 style="color:var(--main-red); margin-top:0;">🛠 แผงควบคุมแอดมินสูงสุด</h2>
-            <hr>
-            <div id="shopManager">กำลังดึงข้อมูล...</div>
+        <div id="adminArea">
+            <h2 style="color:var(--main-red); margin-top:0;">🛠 แผงควบคุมระบบอัตโนมัติ</h2>
+            <div style="background:#1a1a1a; padding:15px; border-radius:12px; margin-bottom:20px; border-left: 4px solid var(--main-red);">
+                สถานะปัจจุบัน: <span id="statusLabel">...</span> | หมดอายุวันที่: <span id="expireLabel">...</span>
+            </div>
+            
+            <div class="form-group"><label>ชื่อสินค้า</label><input type="text" id="inName"></div>
+            <div class="form-group"><label>ราคา (บาท)</label><input type="number" id="inPrice"></div>
+            <div class="form-group"><label>ลิงก์รูปหน้าปกเว็บ</label><input type="text" id="inImg"></div>
+            <div class="form-group"><label>ลิงก์ Demo (ดูตัวอย่าง)</label><input type="text" id="inDemo"></div>
+            <div class="form-group"><label>ลิงก์รูป QR Code (ชำระเงิน)</label><input type="text" id="inQR"></div>
+            <div class="form-group"><label>ตั้งวันหมดอายุ (YYYY-MM-DD)</label><input type="date" id="inExpire"></div>
+            
+            <button class="btn-save" onclick="updateSystem()">💾 บันทึกและตั้งค่าระบบอัตโนมัติ</button>
+        </div>
+    </div>
+
+    <div id="payModal">
+        <div class="modal-body">
+            <h2 style="margin:0; color:var(--main-red);">ชำระเงินเช่าเว็บ</h2>
+            <div class="qr-box" id="qrContainer">รูป QR Code</div>
+            <div class="bank-details">
+                <div style="margin-bottom:8px;"><strong>📱 TrueMoney:</strong> 080-920-0932</div>
+                <div><strong>🏦 KKP (เกียรตินาคิน):</strong> 208-351152-1</div>
+            </div>
+            <p style="font-size:11px; color:#999;">*กรุณาโอนเงินตามยอดและส่งสลิปให้แอดมินเพื่อเปิดระบบ</p>
+            <button onclick="closePay()" style="width:100%; padding:12px; border:none; background:#eee; border-radius:10px; cursor:pointer; font-weight:bold;">ปิดหน้าต่าง</button>
         </div>
     </div>
 
@@ -97,51 +121,79 @@
         const db = getFirestore(app);
         const auth = getAuth(app);
 
-        // ⚠️ แก้ไขอีเมลของคุณตรงนี้!
-        const ADMIN_LIST = ["feirnbiddu10@gmail.com"]; 
+        const ADMIN_ID = "feirnbiddu10@gmail.com";
+
+        window.closeLoader = () => {
+            setTimeout(() => {
+                const loader = document.getElementById('loader');
+                loader.style.opacity = '0';
+                setTimeout(() => loader.style.display = 'none', 500);
+            }, 1200);
+        };
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                document.getElementById('loginBtn').style.display = 'none';
-                document.getElementById('userGreet').innerText = "ผู้ใช้: " + user.email;
-                
-                if (ADMIN_LIST.includes(user.email)) {
+                document.getElementById('userText').innerText = user.email;
+                if (user.email === ADMIN_ID) {
                     document.getElementById('adminBtn').style.display = 'inline-block';
-                    initAdminControl();
+                    syncData();
                 }
             }
         });
 
-        window.toggleAdminPanel = () => {
-            const p = document.getElementById('adminPanel');
-            p.style.display = (p.style.display === 'block') ? 'none' : 'block';
-            if(p.style.display === 'block') p.scrollIntoView({ behavior: 'smooth' });
-        };
-
-        function initAdminControl() {
+        function syncData() {
             onSnapshot(doc(db, "shops", "shop001"), (snap) => {
                 if (snap.exists()) {
-                    const data = snap.data();
-                    const active = data.status === 'active';
-                    document.getElementById('shopManager').innerHTML = `
-                        <div style="padding:15px; background:#f9f9f9; border-radius:10px;">
-                            <strong>ชื่อร้าน: ${data.name}</strong><br><br>
-                            สถานะปัจจุบัน: <span class="status-badge ${active ? 'active-bg' : 'off-bg'}">
-                                ${active ? '🟢 เปิดใช้งานปกติ' : '🔴 ถูกระงับ'}
-                            </span><br><br>
-                            <button onclick="updateShopStatus('${active ? 'suspended' : 'active'}')" 
-                                style="background:${active ? '#ff4d4d' : '#2ecc71'}; color:white; border:none; padding:12px 20px; border-radius:8px; cursor:pointer; font-weight:bold; width:100%;">
-                                ${active ? 'กดเพื่อระงับการใช้งาน (Suspend)' : 'กดเพื่อเปิดใช้งานเว็บลูกค้า'}
-                            </button>
-                        </div>
-                    `;
+                    const d = snap.data();
+                    const now = new Date().toISOString().split('T')[0];
+
+                    // --- ระบบระงับอัตโนมัติ (Auto-Suspend) ---
+                    if (d.expireDate && now > d.expireDate && d.status !== 'suspended') {
+                        updateDoc(doc(db, "shops", "shop001"), { status: 'suspended' });
+                    }
+
+                    // อัปเดตหน้าบ้าน
+                    document.getElementById('pNameDisplay').innerText = d.name;
+                    document.getElementById('pPriceDisplay').innerText = "฿ " + d.price;
+                    document.getElementById('pDemoBtn').href = d.demoUrl;
+                    document.getElementById('pImgPreview').innerHTML = `<img src="${d.imgUrl}">`;
+                    document.getElementById('qrContainer').innerHTML = `<img src="${d.qrUrl}">`;
+
+                    // อัปเดตหลังบ้าน
+                    document.getElementById('inName').value = d.name;
+                    document.getElementById('inPrice').value = d.price;
+                    document.getElementById('inImg').value = d.imgUrl;
+                    document.getElementById('inDemo').value = d.demoUrl;
+                    document.getElementById('inQR').value = d.qrUrl;
+                    document.getElementById('inExpire').value = d.expireDate;
+                    
+                    document.getElementById('statusLabel').innerText = d.status === 'active' ? "🟢 เปิดใช้งานปกติ" : "🔴 ถูกระงับระบบ";
+                    document.getElementById('statusLabel').style.color = d.status === 'active' ? "#2ecc71" : "#e74c3c";
+                    document.getElementById('expireLabel').innerText = d.expireDate || "ยังไม่ได้ระบุ";
                 }
             });
         }
 
-        window.updateShopStatus = async (s) => {
-            await updateDoc(doc(db, "shops", "shop001"), { status: s });
+        window.updateSystem = async () => {
+            await updateDoc(doc(db, "shops", "shop001"), {
+                name: document.getElementById('inName').value,
+                price: document.getElementById('inPrice').value,
+                imgUrl: document.getElementById('inImg').value,
+                demoUrl: document.getElementById('inDemo').value,
+                qrUrl: document.getElementById('inQR').value,
+                expireDate: document.getElementById('inExpire').value,
+                status: 'active' // รีเซ็ตสถานะเป็นปกติเมื่อมีการบันทึกใหม่
+            });
+            alert("✅ ระบบอัปเดตและบันทึกข้อมูลสำเร็จ!");
         };
+
+        window.toggleAdmin = () => {
+            const el = document.getElementById('adminArea');
+            el.style.display = el.style.display === 'block' ? 'none' : 'block';
+        };
+
+        window.openPay = () => document.getElementById('payModal').style.display = 'flex';
+        window.closePay = () => document.getElementById('payModal').style.display = 'none';
     </script>
 </body>
 </html>
