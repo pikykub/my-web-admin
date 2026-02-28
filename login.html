@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>เข้าสู่ระบบ - Store Front</title>
+    <style>
+        body { font-family: 'Kanit', sans-serif; background-color: #f8f9fa; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: white; padding: 40px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 100%; max-width: 400px; text-align: center; }
+        h2 { color: #333; margin-bottom: 20px; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background-color: #ff1493; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px; }
+        .link { margin-top: 15px; font-size: 14px; color: #666; }
+        a { color: #ff1493; text-decoration: none; font-weight: bold; }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h2>เข้าสู่ระบบ 🔑</h2>
+    <input type="email" id="email" placeholder="อีเมล / Email">
+    <input type="password" id="password" placeholder="รหัสผ่าน / Password">
+    <button id="btnLogin">เข้าสู่ระบบ</button>
+    <div class="link">ยังไม่มีบัญชี? <a href="register.html">สมัครสมาชิก</a></div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBORnXLQdZnETh9AMFMUx50FlLylKCVc2w",
+        authDomain: "web-rental-system-d8894.firebaseapp.com",
+        projectId: "web-rental-system-d8894",
+        storageBucket: "web-rental-system-d8894.firebasestorage.app",
+        messagingSenderId: "389385259939",
+        appId: "1:389385259939:web:5a8de35f4a06b906e66816"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    document.getElementById('btnLogin').addEventListener('click', async () => {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        try {
+            await signInWithEmailAndPassword(auth, email, password);
+            alert("ยินดีต้อนรับกลับมาครับ!");
+            window.location.href = "index.html";
+        } catch (e) { alert("เข้าไม่ได้: " + e.message); }
+    });
+</script>
+</body>
+</html>
