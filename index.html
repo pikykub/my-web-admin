@@ -20,39 +20,26 @@
         button:hover { background-color: #d12b41; }
         button:disabled { background-color: #ff99a8; cursor: not-allowed; }
         
+        /* ลูกเล่นให้ปุ่มฉุกเฉินกระพริบเรียกให้กด */
+        @keyframes pulse-btn { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+        .btn-emergency { animation: pulse-btn 1.5s infinite; background-color: var(--success) !important; font-size: 18px !important; }
+
         .link { margin-top: 25px; font-size: 14px; color: #666; }
         a { color: var(--main-red); text-decoration: none; font-weight: bold; }
 
-        /* ป็อปอัปสี่เหลี่ยม */
+        /* ป็อปอัปแจ้งเตือน */
         #toast {
-            visibility: hidden;
-            min-width: 250px;
-            background-color: white;
-            color: #333;
-            text-align: center;
-            border-radius: 12px;
-            padding: 16px 20px;
-            position: fixed;
-            z-index: 1000;
-            left: 50%;
-            top: -50px;
-            transform: translateX(-50%);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-            font-weight: 600;
-            opacity: 0;
-            transition: opacity 0.4s, top 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            border-left: 6px solid;
+            visibility: hidden; min-width: 250px; background-color: white; color: #333; text-align: center; border-radius: 12px;
+            padding: 16px 20px; position: fixed; z-index: 1000; left: 50%; top: -50px; transform: translateX(-50%);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15); font-weight: 600; opacity: 0; transition: opacity 0.4s, top 0.4s;
+            display: flex; align-items: center; justify-content: center; gap: 10px; border-left: 6px solid;
         }
         #toast.show { visibility: visible; opacity: 1; top: 40px; }
     </style>
 </head>
 <body>
 
-<div id="toast">ข้อความจะขึ้นตรงนี้</div>
+<div id="toast">ข้อความ</div>
 
 <div class="card">
     <h2>🍑 PeachWeb</h2>
@@ -70,7 +57,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyBORnXLQdZnETh9AMFMUx50FlLylKCVc2w",
@@ -98,15 +85,8 @@
         setTimeout(() => { toast.classList.remove("show"); }, 3000);
     }
 
-    // 🚀 เพิ่มความชัวร์: ถ้าตรวจเจอว่าล็อกอินค้างไว้อยู่แล้ว ให้วาร์ปไปหน้าแรกทันที
-    onAuthStateChanged(auth, (user) => {
-        if (user) {
-            window.location.replace("index.html");
-        }
-    });
-
     document.getElementById('btnLogin').addEventListener('click', async (e) => {
-        e.preventDefault(); // ป้องกันเบราว์เซอร์เอ๋อ
+        e.preventDefault();
         const email = document.getElementById('email').value.trim();
         const password = document.getElementById('password').value.trim();
         const btn = document.getElementById('btnLogin');
@@ -118,15 +98,25 @@
 
         btn.innerText = "กำลังตรวจสอบ...";
         btn.disabled = true;
+        btn.classList.remove("btn-emergency");
 
         try {
             await signInWithEmailAndPassword(auth, email, password);
-            showToast("ล็อกอินสำเร็จ! กำลังพาไปหน้าหลัก...", "success");
-            btn.innerText = "เข้าสู่ระบบสำเร็จ!";
+            showToast("ล็อกอินสำเร็จ!", "success");
             
-            // 🚀 เปลี่ยนคำสั่งวาร์ปให้แข็งแกร่งขึ้น ทะลุการบล็อคของเบราว์เซอร์
+            // 🚨 ระบบวาร์ปฉุกเฉินทำงาน 🚨
+            btn.innerText = "👉 กดที่นี่เพื่อไปหน้าหลัก 👈";
+            btn.disabled = false; // ปลดล็อคปุ่มให้กดได้อีกรอบ
+            btn.classList.add("btn-emergency"); // ใส่ลูกเล่นให้ปุ่มสีเขียวกระพริบ
+            
+            // ถ้าลูกค้ากดปุ่มนี้ จะบังคับเปิดหน้า index.html ทันทีแบบ 100%
+            btn.onclick = () => {
+                window.location.href = "index.html";
+            };
+
+            // ลองวาร์ปอัตโนมัติเผื่อฟลุคติด
             setTimeout(() => {
-                window.location.replace("index.html"); 
+                window.location.href = "index.html";
             }, 1000);
 
         } catch (error) {
