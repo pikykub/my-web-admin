@@ -9,25 +9,21 @@
         :root { --main-red: #ea334a; --success: #2ecc71; --error: #e74c3c; }
         body { font-family: 'Kanit', sans-serif; background-color: #fcfcfc; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
         
-        /* กล่องล็อกอิน */
         .card { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); width: 100%; max-width: 350px; text-align: center; }
         h2 { color: var(--main-red); margin-bottom: 5px; font-size: 28px; display: flex; align-items: center; justify-content: center; gap: 10px; }
         .subtitle { color: #666; font-size: 14px; margin-bottom: 30px; }
         
-        /* ช่องกรอกข้อมูล */
         input { width: 100%; padding: 15px; margin: 10px 0; border: 1px solid #ddd; border-radius: 12px; box-sizing: border-box; font-family: 'Kanit'; font-size: 15px; background: #fafafa; transition: 0.3s; }
         input:focus { outline: none; border-color: var(--main-red); background: white; box-shadow: 0 0 0 3px rgba(234, 51, 74, 0.1); }
         
-        /* ปุ่มล็อกอิน */
         button { width: 100%; padding: 15px; background-color: var(--main-red); color: white; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 16px; margin-top: 15px; transition: 0.3s; }
-        button:hover { background-color: #d12b41; transform: translateY(-2px); }
-        button:disabled { background-color: #ff99a8; cursor: not-allowed; transform: none; }
+        button:hover { background-color: #d12b41; }
+        button:disabled { background-color: #ff99a8; cursor: not-allowed; }
         
-        /* ลิงก์สมัครสมาชิก */
         .link { margin-top: 25px; font-size: 14px; color: #666; }
         a { color: var(--main-red); text-decoration: none; font-weight: bold; }
 
-        /* 🌟 ระบบ Toast Notification (ป็อปอัปสี่เหลี่ยมสุดฮิต) 🌟 */
+        /* ป็อปอัปสี่เหลี่ยม */
         #toast {
             visibility: hidden;
             min-width: 250px;
@@ -39,23 +35,19 @@
             position: fixed;
             z-index: 1000;
             left: 50%;
-            top: -50px; /* ซ่อนไว้ด้านบนก่อน */
+            top: -50px;
             transform: translateX(-50%);
             box-shadow: 0 10px 25px rgba(0,0,0,0.15);
             font-weight: 600;
             opacity: 0;
-            transition: opacity 0.4s, top 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55); /* เด้งดึ๋งๆ */
+            transition: opacity 0.4s, top 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 10px;
             border-left: 6px solid;
         }
-        #toast.show {
-            visibility: visible;
-            opacity: 1;
-            top: 40px; /* เด้งลงมาตำแหน่งนี้ */
-        }
+        #toast.show { visibility: visible; opacity: 1; top: 40px; }
     </style>
 </head>
 <body>
@@ -78,7 +70,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyBORnXLQdZnETh9AMFMUx50FlLylKCVc2w",
@@ -92,30 +84,31 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
-    // ฟังก์ชันเรียกป็อปอัปสี่เหลี่ยม
     function showToast(message, type) {
         const toast = document.getElementById("toast");
         toast.innerText = message;
-        
         if (type === "success") {
-            toast.style.borderLeftColor = "var(--success)"; // ขอบสีเขียว
+            toast.style.borderLeftColor = "var(--success)";
             toast.innerHTML = `✅ ${message}`;
         } else {
-            toast.style.borderLeftColor = "var(--error)"; // ขอบสีแดง
+            toast.style.borderLeftColor = "var(--error)";
             toast.innerHTML = `❌ ${message}`;
         }
-
         toast.classList.add("show");
-        
-        // ซ่อนป็อปอัปหลังผ่านไป 3 วินาที
-        setTimeout(() => {
-            toast.classList.remove("show");
-        }, 3000);
+        setTimeout(() => { toast.classList.remove("show"); }, 3000);
     }
 
-    document.getElementById('btnLogin').addEventListener('click', async () => {
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
+    // 🚀 เพิ่มความชัวร์: ถ้าตรวจเจอว่าล็อกอินค้างไว้อยู่แล้ว ให้วาร์ปไปหน้าแรกทันที
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            window.location.replace("index.html");
+        }
+    });
+
+    document.getElementById('btnLogin').addEventListener('click', async (e) => {
+        e.preventDefault(); // ป้องกันเบราว์เซอร์เอ๋อ
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value.trim();
         const btn = document.getElementById('btnLogin');
         
         if(!email || !password) {
@@ -123,24 +116,20 @@
             return;
         }
 
-        // เปลี่ยนสถานะปุ่มตอนกำลังโหลด
         btn.innerText = "กำลังตรวจสอบ...";
         btn.disabled = true;
 
         try {
             await signInWithEmailAndPassword(auth, email, password);
-            
-            // 🌟 1. เด้งป็อปอัปสีเขียวว่าสำเร็จ!
-            showToast("ล็อกอินสำเร็จ!", "success");
+            showToast("ล็อกอินสำเร็จ! กำลังพาไปหน้าหลัก...", "success");
             btn.innerText = "เข้าสู่ระบบสำเร็จ!";
             
-            // 🌟 2. วาร์ปไปหน้าหลักหลังจาก 1.5 วินาที
+            // 🚀 เปลี่ยนคำสั่งวาร์ปให้แข็งแกร่งขึ้น ทะลุการบล็อคของเบราว์เซอร์
             setTimeout(() => {
-                window.location.href = "index.html"; 
-            }, 1500);
+                window.location.replace("index.html"); 
+            }, 1000);
 
         } catch (error) {
-            // ❌ เด้งป็อปอัปสีแดงว่ารหัสผิด
             showToast("อีเมลหรือรหัสผ่านไม่ถูกต้อง", "error");
             btn.innerText = "เข้าสู่ระบบ";
             btn.disabled = false;
