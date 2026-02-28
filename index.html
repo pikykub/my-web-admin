@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบควบคุมเว็บเช่า (Admin Central)</title>
+    <style>
+        body { font-family: 'Kanit', sans-serif; background-color: #f4f7f6; padding: 20px; margin: 0; }
+        .container { max-width: 500px; margin: auto; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #2c3e50; font-size: 24px; }
+        .shop-card { border: 1px solid #eee; padding: 20px; border-radius: 15px; margin-top: 20px; text-align: center; }
+        .status-badge { display: inline-block; padding: 5px 15px; border-radius: 20px; font-size: 14px; margin-bottom: 15px; }
+        .active { background-color: #e8f5e9; color: #2e7d32; }
+        .suspended { background-color: #ffebee; color: #c62828; }
+        .btn { width: 100%; padding: 15px; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 16px; transition: 0.3s; }
+        .btn-off { background-color: #ff4d4d; color: white; box-shadow: 0 4px 15px rgba(255, 77, 77, 0.3); }
+        .btn-on { background-color: #2ecc71; color: white; box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3); }
+        .btn:active { transform: scale(0.95); }
+        #loading { text-align: center; color: #888; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>แผงควบคุมแอดมิน ⚙️</h1>
+    <div id="display">
+        <div id="loading">กำลังเชื่อมต่อฐานข้อมูล...</div>
+    </div>
+</div>
+
+<script type="module">
+    // 1. นำเข้า Firebase
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getFirestore, doc, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+    // 2. รหัสเชื่อมต่อของคุณ (ม่อนใส่ให้แล้ว)
+    const firebaseConfig = {
+        apiKey: "AIzaSyBORnXLQdZnETh9AMFMUx50FlLylKCVc2w",
+        authDomain: "web-rental-system-d8894.firebaseapp.com",
+        projectId: "web-rental-system-d8894",
+        storageBucket: "web-rental-system-d8894.firebasestorage.app",
+        messagingSenderId: "389385259939",
+        appId: "1:389385259939:web:5a8de35f4a06b906e66816"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // 3. ดึงข้อมูลร้าน shop001 แบบ Real-time
+    const display = document.getElementById('display');
+    const shopRef = doc(db, "shops", "shop001");
+
+    // ฟังก์ชันติดตามการเปลี่ยนแปลงในฐานข้อมูล
+    onSnapshot(shopRef, (docSnap) => {
+        if (docSnap.exists()) {
+            const data = docSnap.data();
+            const isActive = data.status === 'active';
+            
+            display.innerHTML = `
+                <div class="shop-card">
+                    <h2>ร้าน: ${data.name || 'shop001'}</h2>
+                    <div class="status-badge ${isActive ? 'active' : 'suspended'}">
+                        ● ${isActive ? 'ระบบกำลังเปิดใช้งานปกติ' : 'ระบบถูกระงับการใช้งาน'}
+                    </div>
+                    <button class="btn ${isActive ? 'btn-off' : 'btn-on'}" 
+                            onclick="window.updateStatus('${isActive ? 'suspended' : 'active'}')">
+                        ${isActive ? 'สั่งปิดเว็บลูกค้า (Suspend) ✂️' : 'สั่งเปิดเว็บลูกค้า (Activate) ✅'}
+                    </button>
+                </div>
+            `;
+        } else {
+            display.innerHTML = '<p style="color:red; text-align:center;">ไม่พบข้อมูลร้าน shop001 ในฐานข้อมูล</p>';
+        }
+    });
+
+    // 4. ฟังก์ชันส่งคำสั่งไปเปลี่ยนสถานะ
+    window.updateStatus = async (newStatus) => {
+        try {
+            await updateDoc(shopRef, { status: newStatus });
+            console.log("สถานะเปลี่ยนเป็น:", newStatus);
+        } catch (error) {
+            alert("เกิดข้อผิดพลาด: " + error.message);
+        }
+    };
+</script>
+</body>
+</html>
